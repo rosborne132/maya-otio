@@ -1,0 +1,8 @@
+{
+    "OTIO_SCHEMA" : "ExternalReference.1",
+    "available_range" : null,
+    "available_image_bounds" : null,
+    "metadata" : {},
+    "name" : "",
+    "target_url" : "foo.bar"
+}

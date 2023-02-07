@@ -1,0 +1,5 @@
+{
+    "OTIO_SCHEMA" : "HookScript.1",
+    "name" : "example hook",
+    "filepath" : "example.py"
+}
