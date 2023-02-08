@@ -1,5 +1,5 @@
 //Maya ASCII 2016 scene
-//Name: test.ma
+//Name: screening_example.ma
 //Last modified: Tue, Mar 21, 2017 03:42:59 PM
 //Codeset: UTF-8
 requires maya "2016";
@@ -295,4 +295,4 @@ connectAttr "ZZ100_510__LAY1__camShape2.msg" "ZZ100_510__LAY1_.ccm";
 connectAttr "ZZ100_510B__LAY1__camShape2.msg" "ZZ100_510B__LAY1_.ccm";
 connectAttr "sequencer1.msg" ":sequenceManager1.seqts[0]";
 connectAttr "defaultRenderLayer.msg" ":defaultRenderingList1.r" -na;
-// End of test.ma
+// End of screening_example.ma

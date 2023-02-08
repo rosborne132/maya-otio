@@ -1,10 +1,25 @@
 #ifndef OTIO_TRANSLATOR_H
 #define OTIO_TRANSLATOR_H
 
-#include <maya/MGlobal.h>
-#include <maya/MPxFileTranslator.h>
 #include <maya/MStatus.h>
 #include <maya/MString.h>
+#include <maya/MVector.h>
+#include <maya/MStringArray.h>
+#include <maya/MPxFileTranslator.h>
+#include <maya/MGlobal.h>
+#include <maya/MItDag.h>
+#include <maya/MObject.h>
+#include <maya/MPlug.h>
+#include <maya/MItSelectionList.h>
+#include <maya/MSelectionList.h>
+#include <maya/MFileIO.h>
+#include <maya/MFnTransform.h>
+#include <maya/MFnCamera.h>
+#include <maya/MNamespace.h>
+
+#include <fstream>
+#include <iostream>
+#include <ios>
 
 // TODO: Check if we need to update these comments
 class OtioTranslator : public MPxFileTranslator {
