@@ -1,6 +1,13 @@
 # Maya OTIO File Translator
 The Maya OTIO file translator plugin is a Maya command plugin that translates a Maya file into an otio file.
 
+## Getting started
+To get started, use git to clone this repository:
+```
+git clone --recurse-submodules https://github.com/rosborne132/maya-otio.git
+cd maya-otio
+```
+
 ## Setup
 
 ### Install devkit
