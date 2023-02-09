@@ -17,6 +17,8 @@
 #include <maya/MFnCamera.h>
 #include <maya/MNamespace.h>
 
+#include <opentimelineio/clip.h>
+
 #include <fstream>
 #include <iostream>
 #include <ios>

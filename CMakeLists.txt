@@ -18,7 +18,9 @@ file(GLOB SOURCES "src/*.cpp")
 
 set(SOURCE_FILES ${SOURCES})
 set(LIBRARIES
-    OpenMaya Foundation
+    OpenMaya
+    Foundation
 )
 
+find_package(opentimelineio)
 build_plugin()
