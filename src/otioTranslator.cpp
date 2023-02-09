@@ -93,18 +93,7 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
 
         if (done) break;
 
-        // TODO: Currently we can only grab one at a time
-        // Other createNodes include:
-        // camera
-        // transforms
-        // shot
-        // sequencer
-        // script
-        // lightLinker
-        // displayLayerManager
-        // renderLayerManager
-        // renderLayer
-
+        // Currently we can only grab one at a time
         // We only care about nodes that are transforms
         MFnTransform dagNode(currentNode, &status);
         // MFnCamera camNode(currentNode, &status);

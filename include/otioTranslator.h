@@ -17,7 +17,9 @@
 #include <maya/MFnCamera.h>
 #include <maya/MNamespace.h>
 
-#include <opentimelineio/clip.h>
+#include <opentimelineio/timeline.h>
+
+namespace otio = opentimelineio::OPENTIMELINEIO_VERSION;
 
 #include <fstream>
 #include <iostream>
