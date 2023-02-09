@@ -7,11 +7,11 @@ include($ENV{DEVKIT_LOCATION}/cmake/pluginEntry.cmake)
 include_directories(include)
 
 set(OTIO_SHARED_LIBS OFF)
-add_subdirectory("libs/opentimelineio")
+add_subdirectory("libs/OpenTimelineIO")
 include_directories(
-  ${PROJECT_SOURCE_DIR}/libs/opentimelineio/src
-  ${PROJECT_SOURCE_DIR}/libs/opentimelineio/src/deps
-  ${PROJECT_SOURCE_DIR}/libs/opentimelineio/src/deps/optional-lite/include
+  ${PROJECT_SOURCE_DIR}/libs/OpenTimelineIO/src
+  ${PROJECT_SOURCE_DIR}/libs/OpenTimelineIO/src/deps
+  ${PROJECT_SOURCE_DIR}/libs/OpenTimelineIO/src/deps/optional-lite/include
 )
 
 file(GLOB SOURCES "src/*.cpp")
@@ -22,5 +22,5 @@ set(LIBRARIES
     Foundation
 )
 
-find_package(opentimelineio)
+find_package(OTIO::opentimelineio)
 build_plugin()
