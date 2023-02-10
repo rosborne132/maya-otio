@@ -38,3 +38,5 @@ set(LIBRARIES
 )
 
 build_plugin()
+
+target_link_libraries(${PROJECT_NAME} OTIO::opentimelineio)
