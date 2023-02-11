@@ -1,7 +1,6 @@
 OTIO_FILE := tests/example.otio
 MAYA_FILE := tests/example.ma
 
-
 all: clean build
 
 clean:

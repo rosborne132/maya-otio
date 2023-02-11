@@ -1,6 +1,11 @@
 #ifndef OTIO_TRANSLATOR_H
 #define OTIO_TRANSLATOR_H
 
+#include <fstream>
+#include <ios>
+#include <iostream>
+#include <string>
+
 #include <maya/MStatus.h>
 #include <maya/MString.h>
 #include <maya/MVector.h>
@@ -17,13 +22,10 @@
 #include <maya/MFnCamera.h>
 #include <maya/MNamespace.h>
 
+#include <opentimelineio/clip.h>
 #include <opentimelineio/timeline.h>
 
 namespace otio = opentimelineio::OPENTIMELINEIO_VERSION;
-
-#include <fstream>
-#include <iostream>
-#include <ios>
 
 // TODO: Check if we need to update these comments
 class OtioTranslator : public MPxFileTranslator {
@@ -70,11 +72,6 @@ class OtioTranslator : public MPxFileTranslator {
 
         // This function is called by maya when export or save is called.
         MStatus writer(const MFileObject& file, const MString& optionsString, MPxFileTranslator::FileAccessMode mode) override;
-
-    private:
-        // TODO: check if we still need this after adding the otio lib
-        // The magic string to verify it's a OTIO file simply "<OTIO>"
-        static MString const magic;
 };
 
 #endif

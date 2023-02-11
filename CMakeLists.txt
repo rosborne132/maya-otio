@@ -8,7 +8,7 @@ include_directories(include)
 
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-# Update submodules as needed
+    # Update submodules as needed
     option(GIT_SUBMODULE "Check submodules during build" ON)
     if(GIT_SUBMODULE)
         message(STATUS "Submodule update")
@@ -20,6 +20,9 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
         endif()
     endif()
 endif()
+
+# Silence warning messages from submodules
+add_definitions(-w)
 
 set(OTIO_SHARED_LIBS OFF)
 add_subdirectory("libs/OpenTimelineIO")

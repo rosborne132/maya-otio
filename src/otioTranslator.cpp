@@ -1,22 +1,57 @@
 #include "otioTranslator.h"
+#include "utils.h"
 
 // Create one instance of the OtioTranslator
 void* OtioTranslator::creator() { return new OtioTranslator(); }
 
-// Initialize with magic string
-// TODO: check, but otio might not need this method because of the file format
-MString const OtioTranslator::magic("<OTIO>");
-
-// TODO: Add function comments
 MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
-    // TODO: Add implementation
+    const MString filename = file.expandedFullName();
+    auto filepath = convertMStringToString(filename);
 
-    const MString fileName = file.expandedFullName();
-    MStatus status = MS::kSuccess;
+    MGlobal::displayInfo("Reading file: " + filename);
 
-    MGlobal::displayInfo("Reading file " + fileName);
+    // Load the timeline into memory
+    otio::ErrorStatus errorStatus;
+    auto timeline = dynamic_cast<otio::Timeline*>(
+        otio::Timeline::from_json_file(filepath, &errorStatus)
+    );
 
-    return status;
+    // Check for errors
+    if (!timeline || otio::is_error(errorStatus)) {
+        auto errorMsg = "Error loading: " + filepath + " : "
+            + otio::ErrorStatus::outcome_to_string(errorStatus.outcome)
+            + ": " + errorStatus.details;
+        MGlobal::displayError(convertStringToMString(errorMsg));
+
+        return MStatus::kFailure;
+    }
+
+    // Display information about what was loaded
+    MGlobal::displayInfo(convertStringToMString("Loaded OTIO file: " + filepath));
+    MGlobal::displayInfo(convertStringToMString("Timeline name: " + timeline->name()));
+    MGlobal::displayInfo(convertStringToMString("Timeline duration: " + timeline->duration().to_timecode()));
+
+    if (timeline->video_tracks().size() == 0) {
+        MGlobal::displayInfo("No video tracks");
+    } else {
+        for (const auto& track : timeline->video_tracks()) {
+            MGlobal::displayInfo(convertStringToMString("Track: " + track->name()));
+            MGlobal::displayInfo(convertStringToMString("Kind: " + track->kind()));
+            MGlobal::displayInfo(convertStringToMString("Duration: " + track->duration().to_timecode()));
+
+            // TODO: Do something with the track data
+        }
+    }
+
+    MGlobal::displayInfo("All Clips: ");
+    for (const auto& clip : timeline->find_clips()) {
+        MGlobal::displayInfo(convertStringToMString("Clip: " + clip->name()));
+        MGlobal::displayInfo(convertStringToMString("Duration: " + clip->duration().to_timecode()));
+
+        // TODO: Do something with the clip data
+    }
+
+    return MS::kSuccess;
 }
 
 // TODO: Add function comments
@@ -121,22 +156,13 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
 // the extension.
 MString OtioTranslator::defaultExtension() const { return "otio"; }
 
-//This method is pretty simple, maya will call this function
-//to make sure it is really a file from our translator.
-//To make sure, we have a little magic number and we verify against it.
-// TODO: check if comment is still true for our file format
+// This method is pretty simple, maya will call this function
+// to make sure it is really a file from our translator.
 MPxFileTranslator::MFileKind OtioTranslator::identifyFile (const MFileObject& fileName, const char* buffer, short size) const {
-    // TODO: Add implementation
-    // TODO: Update comments
-    // Check the buffer for the "OTIO" magic number, the
-    // string "<OTIO>\n"
+    std::string fileNameStr = convertMStringToString(fileName.resolvedName());
+    std::string extention = "." + convertMStringToString(defaultExtension());
 
-    MFileKind rval = kNotMyFileType;
-
-    if ((size >= (short)magic.length()) &&
-        (0 == strncmp(buffer, magic.asChar(), magic.length())))
-    {
-        rval = kIsMyFileType;
-    }
-    return rval;
+    return fileNameStr.find(extention) != std::string::npos
+        ? kIsMyFileType
+        : kNotMyFileType;
 }
