@@ -3,24 +3,16 @@
 
 #include <fstream>
 #include <ios>
-#include <iostream>
-#include <string>
 
 #include <maya/MStatus.h>
 #include <maya/MString.h>
-#include <maya/MVector.h>
-#include <maya/MStringArray.h>
 #include <maya/MPxFileTranslator.h>
 #include <maya/MGlobal.h>
 #include <maya/MItDag.h>
 #include <maya/MObject.h>
-#include <maya/MPlug.h>
 #include <maya/MItSelectionList.h>
 #include <maya/MSelectionList.h>
-#include <maya/MFileIO.h>
-#include <maya/MFnTransform.h>
 #include <maya/MFnCamera.h>
-#include <maya/MNamespace.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/timeline.h>
@@ -67,11 +59,30 @@ class OtioTranslator : public MPxFileTranslator {
         // is capable of handling this file.
         MFileKind identifyFile(const MFileObject& fileName, const char* buffer, short size) const override;
 
-        // This function is called by maya when import or open is called.
+        // This method is called by maya when import or open is called.
         MStatus reader(const MFileObject& file, const MString& optionsString, MPxFileTranslator::FileAccessMode mode) override;
 
-        // This function is called by maya when export or save is called.
+        // This method is called by maya when export or save is called.
         MStatus writer(const MFileObject& file, const MString& optionsString, MPxFileTranslator::FileAccessMode mode) override;
+
+    private:
+        // This helper method writes the header of the output file.
+        void writeHeader(std::ostream& os);
+
+        // This helper method writes the footer of the output file.
+        void writeFooter(std::ostream& os);
+
+        // This helper method exports everything in the scene.
+        MStatus exportAll(std::ostream& os);
+
+        // This helper method exports everything in the scene
+        MStatus exportSelection(std::ostream& os);
+
+        // This helper method acts as a meditator for processing nodes.
+        MStatus processNodeByType(MObject currentNode, std::ostream& os);
+
+        // This helper method for processing camera DAH nodes.
+        MStatus processCameraNode(MObject currentNode, std::ostream& os);
 };
 
 #endif

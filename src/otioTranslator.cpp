@@ -54,13 +54,8 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
     return MS::kSuccess;
 }
 
-// TODO: Add function comments
 MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
-    // TODO: Add implementation
-    MStatus status;
     const MString fileName = file.expandedFullName();
-    bool showPositions = false;
-    unsigned int i;
 
     std::ofstream newFile(fileName.asChar(), std::ios::out);
 	if (!newFile) {
@@ -69,84 +64,97 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
 	}
 	newFile.setf(std::ios::unitbuf);
 
-	if (options.length() > 0) {
-        // Start parsing.
-        MStringArray optionList;
-        MStringArray theOption;
-        options.split(';', optionList);    // break out all the options.
 
-        for(i = 0; i < optionList.length(); ++i){
-            theOption.clear();
-            MGlobal::displayInfo("Current option: " + optionList[i]);
-            optionList[i].split('=', theOption);
-            if (theOption[0] == MString("showPositions") && theOption.length() > 1) {
-                showPositions = theOption[1].asInt() > 0;
-            }
-        }
+    // TODO: Update based on the otio file format
+	writeHeader(newFile);
+
+	// Check which objects are to be exported, and invoke the corresponding
+	// methods; only 'export all' and 'export selection' are allowed
+	if (MPxFileTranslator::kExportAccessMode == mode) {
+		if (MStatus::kFailure == exportAll(newFile)) {
+			return MStatus::kFailure;
+		}
+	} else if (MPxFileTranslator::kExportActiveAccessMode == mode) {
+		if (MStatus::kFailure == exportSelection(newFile)) {
+			return MStatus::kFailure;
+		}
+	} else {
+		return MStatus::kFailure;
+	}
+
+    // TODO: Update based on the otio file format
+	writeFooter(newFile);
+	newFile.flush();
+	newFile.close();
+
+	MGlobal::displayInfo("Export to " + fileName + " successful!");
+	return MS::kSuccess;
+}
+
+// Outputs information that needs to appear before the main data
+void OtioTranslator::writeHeader(std::ostream& os) { os << ""; }
+
+// Outputs information that needs to appear after the main data
+void OtioTranslator::writeFooter(std::ostream& os) { os << ""; }
+
+MStatus OtioTranslator::exportAll(std::ostream& os) {
+    MGlobal::displayInfo("Exporting everything to new file.");
+
+    MStatus status;
+    MItDag dagIterator(MItDag::kDepthFirst, MFn::kInvalid, &status);
+
+    if (MStatus::kFailure == status) {
+		MGlobal::displayError("Failure in DAG iterator setup");
+		return MStatus::kFailure;
+	}
+
+    for (dagIterator.next(); !dagIterator.isDone(); dagIterator.next()) {
+        MObject currentNode = dagIterator.currentItem();
+        processNodeByType(currentNode, os);
     }
 
-    // TODO: Remove later
-    // output our magic number
-    newFile << "<OTIO>\n";
+    return MStatus::kSuccess;
+}
 
-    MItDag dagIterator(MItDag::kBreadthFirst, MFn::kInvalid, &status);
-
-    if (!status) {
-        status.perror("Failure in DAG iterator setup");
-        return MS::kFailure;
-    }
+MStatus OtioTranslator::exportSelection(std::ostream& os) {
+    MGlobal::displayInfo("Exporting selected to new file.");
 
     MSelectionList selection;
     MGlobal::getActiveSelectionList(selection);
     MItSelectionList selIterator(selection, MFn::kDagNode);
 
-    bool done = false;
-    while (true) {
+    // Loop through all selected nodes and process them accordingly
+    for (selIterator.next(); !selIterator.isDone(); selIterator.next()) {
         MObject currentNode;
-        switch (mode) {
-            case MPxFileTranslator::kSaveAccessMode:
-            case MPxFileTranslator::kExportAccessMode:
-                if (dagIterator.isDone())
-                    done = true;
-                else {
-                    currentNode = dagIterator.currentItem();
-                    dagIterator.next();
-                }
-                break;
-            case MPxFileTranslator::kExportActiveAccessMode:
-                if (selIterator.isDone())
-                    done = true;
-                else {
-                    selIterator.getDependNode(currentNode);
-                    selIterator.next();
-                }
-                break;
-            default:
-                std::cerr << "Unrecognized write mode: " << mode << std::endl;
-                break;
-        }
-
-        if (done) break;
-
-        // Currently we can only grab one at a time
-        // We only care about nodes that are transforms
-        MFnTransform dagNode(currentNode, &status);
-        // MFnCamera camNode(currentNode, &status);
-        if (status == MS::kSuccess) {
-            MString nodeNameNoNamespace = MNamespace::stripNamespaceFromName(dagNode.name());
-            // MGlobal::displayInfo("camNode.name(): " + camNode.name());
-            MGlobal::displayInfo("dagNode.name(): " + dagNode.name());
-            MGlobal::displayInfo("nodeNameNoNamespace: " + nodeNameNoNamespace);
-            // Continue to process the dagNode as we see fit.
-            // For more information on the dagNode, reference MFnTransform.h
-        }
+        selIterator.getDependNode(currentNode);
+        processNodeByType(currentNode, os);
     }
 
-    newFile.close();
+    return MStatus::kSuccess;
+}
 
-	MGlobal::displayInfo("Export to " + fileName + " successful!");
+MStatus OtioTranslator::processNodeByType(MObject currentNode, std::ostream& os) {
+    switch (currentNode.apiType()) {
+        case MFn::kCamera:
+            return processCameraNode(currentNode, os);
+        default:
+            return MStatus::kSuccess;
+    }
+}
 
-	return MS::kSuccess;
+MStatus OtioTranslator::processCameraNode(MObject currentNode, std::ostream& os) {
+    MGlobal::displayInfo("Processing camera node.");
+
+    MStatus status;
+    MFnCamera camNode(currentNode, &status);
+
+    if (status != MS::kSuccess) return MStatus::kFailure;
+
+    MGlobal::displayInfo("camNode.name(): " + camNode.name());
+
+    // TODO: Continue processing with all cameras
+
+    return MStatus::kSuccess;
 }
 
 // Whenever Maya needs to know the preferred extension of this file format,
@@ -158,7 +166,7 @@ MString OtioTranslator::defaultExtension() const { return "otio"; }
 
 // This method is pretty simple, maya will call this function
 // to make sure it is really a file from our translator.
-MPxFileTranslator::MFileKind OtioTranslator::identifyFile (const MFileObject& fileName, const char* buffer, short size) const {
+MPxFileTranslator::MFileKind OtioTranslator::identifyFile(const MFileObject& fileName, const char* buffer, short size) const {
     std::string fileNameStr = convertMStringToString(fileName.resolvedName());
     std::string extention = "." + convertMStringToString(defaultExtension());
 
@@ -166,3 +174,4 @@ MPxFileTranslator::MFileKind OtioTranslator::identifyFile (const MFileObject& fi
         ? kIsMyFileType
         : kNotMyFileType;
 }
+
