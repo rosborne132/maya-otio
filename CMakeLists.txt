@@ -24,6 +24,9 @@ endif()
 # Silence warning messages from submodules
 add_definitions(-w)
 
+# Setup caching when building
+set(CMAKE_CXX_COMPILER_LAUNCHER "ccache")
+
 set(OTIO_SHARED_LIBS OFF)
 add_subdirectory("libs/OpenTimelineIO")
 include_directories(

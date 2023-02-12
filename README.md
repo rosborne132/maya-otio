@@ -22,6 +22,12 @@ Once you install the devkit, you need to set it up for your OS. You can find ins
 This project uses the ninja build system.
 You can install ninja from the official website [here](https://github.com/ninja-build/ninja).
 
+#### ccache
+Install ccache to cache your local builds to speed up your development time.
+```bash
+brew install ccache
+```
+
 ## Project scripts
 ```bash
 // Removes build directory
