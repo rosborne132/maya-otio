@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <ios>
+#include <sstream>
 
 #include <maya/MStatus.h>
 #include <maya/MString.h>
@@ -66,23 +67,17 @@ class OtioTranslator : public MPxFileTranslator {
         MStatus writer(const MFileObject& file, const MString& optionsString, MPxFileTranslator::FileAccessMode mode) override;
 
     private:
-        // This helper method writes the header of the output file.
-        void writeHeader(std::ostream& os);
-
-        // This helper method writes the footer of the output file.
-        void writeFooter(std::ostream& os);
-
         // This helper method exports everything in the scene.
-        MStatus exportAll(std::ostream& os);
+        MStatus exportAll(otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
         // This helper method exports everything in the scene
-        MStatus exportSelection(std::ostream& os);
+        MStatus exportSelection(otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
         // This helper method acts as a meditator for processing nodes.
-        MStatus processNodeByType(MObject currentNode, std::ostream& os);
+        MStatus processNodeByType(MObject currentNode, otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
         // This helper method for processing camera DAH nodes.
-        MStatus processCameraNode(MObject currentNode, std::ostream& os);
+        MStatus processCameraNode(MObject currentNode, otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 };
 
 #endif

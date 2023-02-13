@@ -56,26 +56,31 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
 
 MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
     const MString fileName = file.expandedFullName();
+    const std::string filepath = convertMStringToString(fileName);
 
-    std::ofstream newFile(fileName.asChar(), std::ios::out);
-	if (!newFile) {
-		MGlobal::displayError(fileName + ": could not be opened for reading");
-		return MS::kFailure;
-	}
-	newFile.setf(std::ios::unitbuf);
+    otio::ErrorStatus errorStatus;
+    std::string name = convertMStringToString(file.resolvedName());
+    std::stringstream ss(name);
 
+    int dotIndex = name.find(".");
+    if (dotIndex != std::string::npos) {
+        name = name.substr(0, dotIndex);
+    }
+
+    // Good track doc https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-timeline-structure.html
+    auto timeline = otio::SerializableObject::Retainer<otio::Timeline>(new otio::Timeline(name));
 
     // TODO: Update based on the otio file format
-	writeHeader(newFile);
+	// writeHeader(newFile);
 
 	// Check which objects are to be exported, and invoke the corresponding
 	// methods; only 'export all' and 'export selection' are allowed
 	if (MPxFileTranslator::kExportAccessMode == mode) {
-		if (MStatus::kFailure == exportAll(newFile)) {
+		if (MStatus::kFailure == exportAll(timeline)) {
 			return MStatus::kFailure;
 		}
 	} else if (MPxFileTranslator::kExportActiveAccessMode == mode) {
-		if (MStatus::kFailure == exportSelection(newFile)) {
+		if (MStatus::kFailure == exportSelection(timeline)) {
 			return MStatus::kFailure;
 		}
 	} else {
@@ -83,21 +88,23 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
 	}
 
     // TODO: Update based on the otio file format
-	writeFooter(newFile);
-	newFile.flush();
-	newFile.close();
+	// writeFooter(newFile);
+	// newFile.flush();
+	// newFile.close();
+
+    if(!timeline.value->to_json_file(filepath, &errorStatus)) {
+        auto errorMsg = "Error writing to " + filepath + " : "
+            + otio::ErrorStatus::outcome_to_string(errorStatus.outcome)
+            + ": " + errorStatus.details;
+        MGlobal::displayError(convertStringToMString(errorMsg));
+        return MS::kFailure;
+    };
 
 	MGlobal::displayInfo("Export to " + fileName + " successful!");
 	return MS::kSuccess;
 }
 
-// Outputs information that needs to appear before the main data
-void OtioTranslator::writeHeader(std::ostream& os) { os << ""; }
-
-// Outputs information that needs to appear after the main data
-void OtioTranslator::writeFooter(std::ostream& os) { os << ""; }
-
-MStatus OtioTranslator::exportAll(std::ostream& os) {
+MStatus OtioTranslator::exportAll(otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
     MGlobal::displayInfo("Exporting everything to new file.");
 
     MStatus status;
@@ -110,13 +117,13 @@ MStatus OtioTranslator::exportAll(std::ostream& os) {
 
     for (dagIterator.next(); !dagIterator.isDone(); dagIterator.next()) {
         MObject currentNode = dagIterator.currentItem();
-        processNodeByType(currentNode, os);
+        processNodeByType(currentNode, timeline);
     }
 
     return MStatus::kSuccess;
 }
 
-MStatus OtioTranslator::exportSelection(std::ostream& os) {
+MStatus OtioTranslator::exportSelection(otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
     MGlobal::displayInfo("Exporting selected to new file.");
 
     MSelectionList selection;
@@ -127,22 +134,22 @@ MStatus OtioTranslator::exportSelection(std::ostream& os) {
     for (selIterator.next(); !selIterator.isDone(); selIterator.next()) {
         MObject currentNode;
         selIterator.getDependNode(currentNode);
-        processNodeByType(currentNode, os);
+        processNodeByType(currentNode, timeline);
     }
 
     return MStatus::kSuccess;
 }
 
-MStatus OtioTranslator::processNodeByType(MObject currentNode, std::ostream& os) {
+MStatus OtioTranslator::processNodeByType(MObject currentNode, otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
     switch (currentNode.apiType()) {
         case MFn::kCamera:
-            return processCameraNode(currentNode, os);
+            return processCameraNode(currentNode, timeline);
         default:
             return MStatus::kSuccess;
     }
 }
 
-MStatus OtioTranslator::processCameraNode(MObject currentNode, std::ostream& os) {
+MStatus OtioTranslator::processCameraNode(MObject currentNode, otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
     MGlobal::displayInfo("Processing camera node.");
 
     MStatus status;
