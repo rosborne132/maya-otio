@@ -70,27 +70,11 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
     // Good track doc https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-timeline-structure.html
     auto timeline = otio::SerializableObject::Retainer<otio::Timeline>(new otio::Timeline(name));
 
-    // TODO: Update based on the otio file format
-	// writeHeader(newFile);
+	// Check which objects are to be exported, and invoke the corresponding methods.
+    // Only 'export all' are allowed.
+	if (MPxFileTranslator::kExportAccessMode != mode) return MStatus::kFailure;
 
-	// Check which objects are to be exported, and invoke the corresponding
-	// methods; only 'export all' and 'export selection' are allowed
-	if (MPxFileTranslator::kExportAccessMode == mode) {
-		if (MStatus::kFailure == exportAll(timeline)) {
-			return MStatus::kFailure;
-		}
-	} else if (MPxFileTranslator::kExportActiveAccessMode == mode) {
-		if (MStatus::kFailure == exportSelection(timeline)) {
-			return MStatus::kFailure;
-		}
-	} else {
-		return MStatus::kFailure;
-	}
-
-    // TODO: Update based on the otio file format
-	// writeFooter(newFile);
-	// newFile.flush();
-	// newFile.close();
+    if (MStatus::kFailure == exportAll(timeline)) return MStatus::kFailure;
 
     if(!timeline.value->to_json_file(filepath, &errorStatus)) {
         auto errorMsg = "Error writing to " + filepath + " : "
@@ -100,76 +84,95 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
         return MS::kFailure;
     };
 
-	MGlobal::displayInfo("Export to " + fileName + " successful!");
+	MGlobal::displayInfo("Export to " + fileName + " was successful!");
 	return MS::kSuccess;
 }
 
 MStatus OtioTranslator::exportAll(otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
-    MGlobal::displayInfo("Exporting everything to new file.");
+    MGlobal::displayInfo("Exporting everything to a new file.");
 
     MStatus status;
-    MItDag dagIterator(MItDag::kDepthFirst, MFn::kInvalid, &status);
 
-    if (MStatus::kFailure == status) {
-		MGlobal::displayError("Failure in DAG iterator setup");
-		return MStatus::kFailure;
-	}
+    // Process and loop through all nodes in the dependency graph.
+	MItDependencyNodes nodeIter;
+    for (; !nodeIter.isDone(); nodeIter.next()) {
+		MObject	node = nodeIter.thisNode();
 
-    for (dagIterator.next(); !dagIterator.isDone(); dagIterator.next()) {
-        MObject currentNode = dagIterator.currentItem();
-        processNodeByType(currentNode, timeline);
+        if (node.apiType() == MFn::kSequencer) {
+            processSequenceNode(node, timeline);
+        }
     }
 
     return MStatus::kSuccess;
 }
 
-MStatus OtioTranslator::exportSelection(otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
-    MGlobal::displayInfo("Exporting selected to new file.");
+MStatus OtioTranslator::processSequenceNode(MObject node, otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
+    MFnDependencyNode nodeFn(node);
+    MPlugArray plugs;
+    auto plugArray = nodeFn.getConnections(plugs);
 
-    MSelectionList selection;
-    MGlobal::getActiveSelectionList(selection);
-    MItSelectionList selIterator(selection, MFn::kDagNode);
+    // Create stack and track container for processing shot nodes.
+    auto stack = otio::SerializableObject::Retainer<otio::Stack>(new otio::Stack());
+    timeline.value->set_tracks(stack);
+    auto track = otio::SerializableObject::Retainer<otio::Track>(
+        new otio::Track(convertMStringToString(nodeFn.name()))
+    );
 
-    // Loop through all selected nodes and process them accordingly
-    for (selIterator.next(); !selIterator.isDone(); selIterator.next()) {
-        MObject currentNode;
-        selIterator.getDependNode(currentNode);
-        processNodeByType(currentNode, timeline);
+    // Process each dependency node connected to the sequence node.
+    for (auto plug : plugs) {
+        MPlugArray	srcPlugs;
+        plug.connectedTo(srcPlugs, true, false);
+
+        for (auto srcPlug : srcPlugs) {
+            MObject	srcNode = srcPlug.node();
+
+            if (srcNode.apiType() != MFn::kShot) continue;
+
+            if (!processShotNode(srcNode, track) != MStatus::kSuccess) {
+                MGlobal::displayError("Error processing shot node: " + srcPlug.name());
+            }
+        }
     }
+
+    // Add stack with new clips.
+    stack.value->append_child(track);
 
     return MStatus::kSuccess;
 }
 
-MStatus OtioTranslator::processNodeByType(MObject currentNode, otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
-    switch (currentNode.apiType()) {
-        case MFn::kCamera:
-            return processCameraNode(currentNode, timeline);
-        default:
-            return MStatus::kSuccess;
-    }
-}
-
-MStatus OtioTranslator::processCameraNode(MObject currentNode, otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
-    MGlobal::displayInfo("Processing camera node.");
-
+MStatus OtioTranslator::processShotNode(MObject node, otio::SerializableObject::Retainer<otio::Track>& track) {
+    MFnDependencyNode shotNode(node);
     MStatus status;
-    MFnCamera camNode(currentNode, &status);
+    MTime startFrame;
+    MTime endFrame;
 
-    if (status != MS::kSuccess) return MStatus::kFailure;
+    MGlobal::displayInfo("Processing shot node: " + shotNode.name());
 
-    MGlobal::displayInfo("camNode.name(): " + camNode.name());
+    shotNode.findPlug("startFrame", true, &status).getValue(startFrame);
+    shotNode.findPlug("endFrame", true, &status).getValue(endFrame);
+    int fStartFrame = (int) startFrame.as(MTime::uiUnit());
+    int fEndFrame = (int) endFrame.as(MTime::uiUnit());
 
-    // TODO: Continue processing with all cameras
+    // TODO: See if there is a media reference that we can attach to the clip.
 
-    return MStatus::kSuccess;
+    // TODO: Get real rate
+    int rate = 10;
+
+    auto clip = otio::SerializableObject::Retainer<otio::Clip>(
+        new otio::Clip(
+            convertMStringToString(shotNode.name()),
+            nullptr,
+            opentime::TimeRange(
+                opentime::RationalTime(fStartFrame, rate),
+                opentime::RationalTime(fEndFrame - fStartFrame, rate)
+            )
+        )
+    );
+
+    track.value->append_child(clip);
+
+    return status;
 }
-
-// Whenever Maya needs to know the preferred extension of this file format,
-// it calls this method. For example, if the user tries to save a file called
-// "test" using the Save As dialog, Maya will call this method and actually
-// save it as "test.otio". Note that the period should *not* be included in
-// the extension.
-MString OtioTranslator::defaultExtension() const { return "otio"; }
 
 // This method is pretty simple, maya will call this function
 // to make sure it is really a file from our translator.
@@ -181,4 +184,3 @@ MPxFileTranslator::MFileKind OtioTranslator::identifyFile(const MFileObject& fil
         ? kIsMyFileType
         : kNotMyFileType;
 }
-

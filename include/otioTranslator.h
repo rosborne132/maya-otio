@@ -9,18 +9,21 @@
 #include <maya/MString.h>
 #include <maya/MPxFileTranslator.h>
 #include <maya/MGlobal.h>
-#include <maya/MItDag.h>
 #include <maya/MObject.h>
-#include <maya/MItSelectionList.h>
-#include <maya/MSelectionList.h>
-#include <maya/MFnCamera.h>
+#include <maya/MFnClip.h>
+#include <maya/MPlug.h>
+#include <maya/MItDependencyNodes.h>
+#include <maya/MTime.h>
+#include <maya/MPlugArray.h>
+#include <maya/MPlug.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/timeline.h>
+#include <opentimelineio/track.h>
+#include <opentime/timeRange.h>
 
 namespace otio = opentimelineio::OPENTIMELINEIO_VERSION;
 
-// TODO: Check if we need to update these comments
 class OtioTranslator : public MPxFileTranslator {
     public:
         OtioTranslator() {};
@@ -35,7 +38,7 @@ class OtioTranslator : public MPxFileTranslator {
         bool haveWriteMethod() const override { return true; }
 
         // If this method returns true, and the otio file is referenced in a scene, the write method will be
-        // called when a write operation is performed on the parent file.  This use is for users who wish
+        // called when a write operation is performed on the parent file. This use is for users who wish
         // to implement a custom file referencing system.
         // For this example, we will return false as we will use Maya's file referencing system.
         bool haveReferenceMethod() const override { return false; }
@@ -47,7 +50,12 @@ class OtioTranslator : public MPxFileTranslator {
         static void* creator();
 
         // This returns the default extension ".otio" in this case.
-        MString defaultExtension() const override;
+        // Whenever Maya needs to know the preferred extension of this file format,
+        // it calls this method. For example, if the user tries to save a file called
+        // "test" using the Save As dialog, Maya will call this method and actually
+        // save it as "test.otio". Note that the period should *not* be included in
+        // the extension.
+        MString defaultExtension() const override { return "otio"; };
 
         // If this method returns true it means that the translator can handle opening files
         // as well as importing them.
@@ -70,14 +78,11 @@ class OtioTranslator : public MPxFileTranslator {
         // This helper method exports everything in the scene.
         MStatus exportAll(otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
-        // This helper method exports everything in the scene
-        MStatus exportSelection(otio::SerializableObject::Retainer<otio::Timeline>& timeline);
+        // This helper method is for processing shot nodes.
+        MStatus processShotNode(MObject node, otio::SerializableObject::Retainer<otio::Track>& track);
 
-        // This helper method acts as a meditator for processing nodes.
-        MStatus processNodeByType(MObject currentNode, otio::SerializableObject::Retainer<otio::Timeline>& timeline);
-
-        // This helper method for processing camera DAH nodes.
-        MStatus processCameraNode(MObject currentNode, otio::SerializableObject::Retainer<otio::Timeline>& timeline);
+        // This helper method is for processing sequence nodes.
+        MStatus processSequenceNode(MObject node, otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 };
 
 #endif
