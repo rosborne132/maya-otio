@@ -1,9 +1,6 @@
 #include "otioTranslator.h"
 #include "utils.h"
 
-// Create one instance of the OtioTranslator
-void* OtioTranslator::creator() { return new OtioTranslator(); }
-
 MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
     const MString filename = file.expandedFullName();
     auto filepath = convertMStringToString(filename);
@@ -67,15 +64,18 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
         name = name.substr(0, dotIndex);
     }
 
-    // Good track doc https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-timeline-structure.html
+    // Further documentation on OTIO timeline
+    // https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-timeline-structure.html
     auto timeline = otio::SerializableObject::Retainer<otio::Timeline>(new otio::Timeline(name));
 
-	// Check which objects are to be exported, and invoke the corresponding methods.
-    // Only 'export all' are allowed.
+	// Check which objects are to be exported. Only 'export all' are allowed.
 	if (MPxFileTranslator::kExportAccessMode != mode) return MStatus::kFailure;
 
+    // Export all and if there is an error than return failure status.
     if (MStatus::kFailure == exportAll(timeline)) return MStatus::kFailure;
 
+    // Write timeline to the desired file. Log error if error is occurred while
+    // writing the file.
     if(!timeline.value->to_json_file(filepath, &errorStatus)) {
         auto errorMsg = "Error writing to " + filepath + " : "
             + otio::ErrorStatus::outcome_to_string(errorStatus.outcome)
@@ -98,9 +98,7 @@ MStatus OtioTranslator::exportAll(otio::SerializableObject::Retainer<otio::Timel
     for (; !nodeIter.isDone(); nodeIter.next()) {
 		MObject	node = nodeIter.thisNode();
 
-        if (node.apiType() == MFn::kSequencer) {
-            processSequenceNode(node, timeline);
-        }
+        if (node.apiType() == MFn::kSequencer) processSequenceNode(node, timeline);
     }
 
     return MStatus::kSuccess;
@@ -120,16 +118,16 @@ MStatus OtioTranslator::processSequenceNode(MObject node, otio::SerializableObje
 
     // Process each dependency node connected to the sequence node.
     for (auto plug : plugs) {
-        MPlugArray	srcPlugs;
-        plug.connectedTo(srcPlugs, true, false);
+        MPlugArray	seqPlugs;
+        plug.connectedTo(seqPlugs, true, false);
 
-        for (auto srcPlug : srcPlugs) {
-            MObject	srcNode = srcPlug.node();
+        for (auto seqPlug : seqPlugs) {
+            MObject	srcNode = seqPlug.node();
 
             if (srcNode.apiType() != MFn::kShot) continue;
 
             if (!processShotNode(srcNode, track) != MStatus::kSuccess) {
-                MGlobal::displayError("Error processing shot node: " + srcPlug.name());
+                MGlobal::displayError("Error processing shot node: " + seqPlug.name());
             }
         }
     }
@@ -174,8 +172,6 @@ MStatus OtioTranslator::processShotNode(MObject node, otio::SerializableObject::
     return status;
 }
 
-// This method is pretty simple, maya will call this function
-// to make sure it is really a file from our translator.
 MPxFileTranslator::MFileKind OtioTranslator::identifyFile(const MFileObject& fileName, const char* buffer, short size) const {
     std::string fileNameStr = convertMStringToString(fileName.resolvedName());
     std::string extention = "." + convertMStringToString(defaultExtension());

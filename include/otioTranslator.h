@@ -5,22 +5,22 @@
 #include <ios>
 #include <sstream>
 
+#include <maya/MFnClip.h>
+#include <maya/MGlobal.h>
+#include <maya/MItDependencyNodes.h>
+#include <maya/MObject.h>
+#include <maya/MPlug.h>
+#include <maya/MPlug.h>
+#include <maya/MPlugArray.h>
+#include <maya/MPxFileTranslator.h>
 #include <maya/MStatus.h>
 #include <maya/MString.h>
-#include <maya/MPxFileTranslator.h>
-#include <maya/MGlobal.h>
-#include <maya/MObject.h>
-#include <maya/MFnClip.h>
-#include <maya/MPlug.h>
-#include <maya/MItDependencyNodes.h>
 #include <maya/MTime.h>
-#include <maya/MPlugArray.h>
-#include <maya/MPlug.h>
 
+#include <opentime/timeRange.h>
 #include <opentimelineio/clip.h>
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/track.h>
-#include <opentime/timeRange.h>
 
 namespace otio = opentimelineio::OPENTIMELINEIO_VERSION;
 
@@ -47,7 +47,7 @@ class OtioTranslator : public MPxFileTranslator {
         bool haveNamespaceSupport() const override { return true; }
 
         // This method is used by Maya to create instances of the translator.
-        static void* creator();
+        static void* creator() { return new OtioTranslator(); }
 
         // This returns the default extension ".otio" in this case.
         // Whenever Maya needs to know the preferred extension of this file format,
