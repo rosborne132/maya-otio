@@ -68,8 +68,8 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
     // https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-timeline-structure.html
     auto timeline = otio::SerializableObject::Retainer<otio::Timeline>(new otio::Timeline(name));
 
-	// Check which objects are to be exported. Only 'export all' are allowed.
-	if (MPxFileTranslator::kExportAccessMode != mode) return MStatus::kFailure;
+    // Check which objects are to be exported. Only 'export all' are allowed.
+    if (MPxFileTranslator::kExportAccessMode != mode) return MStatus::kFailure;
 
     // Export all and if there is an error than return failure status.
     if (MStatus::kFailure == exportAll(timeline)) return MStatus::kFailure;
@@ -84,8 +84,8 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
         return MS::kFailure;
     };
 
-	MGlobal::displayInfo("Export to " + fileName + " was successful!");
-	return MS::kSuccess;
+    MGlobal::displayInfo("Export to " + fileName + " was successful!");
+    return MS::kSuccess;
 }
 
 MStatus OtioTranslator::exportAll(otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
@@ -94,9 +94,9 @@ MStatus OtioTranslator::exportAll(otio::SerializableObject::Retainer<otio::Timel
     MStatus status;
 
     // Process and loop through all nodes in the dependency graph.
-	MItDependencyNodes nodeIter;
+    MItDependencyNodes nodeIter;
     for (; !nodeIter.isDone(); nodeIter.next()) {
-		MObject	node = nodeIter.thisNode();
+        MObject	node = nodeIter.thisNode();
 
         if (node.apiType() == MFn::kSequencer) processSequenceNode(node, timeline);
     }
@@ -118,11 +118,11 @@ MStatus OtioTranslator::processSequenceNode(MObject node, otio::SerializableObje
 
     // Process each dependency node connected to the sequence node.
     for (auto plug : plugs) {
-        MPlugArray	seqPlugs;
+        MPlugArray seqPlugs;
         plug.connectedTo(seqPlugs, true, false);
 
         for (auto seqPlug : seqPlugs) {
-            MObject	srcNode = seqPlug.node();
+            MObject srcNode = seqPlug.node();
 
             if (srcNode.apiType() != MFn::kShot) continue;
 
@@ -154,7 +154,7 @@ MStatus OtioTranslator::processShotNode(MObject node, otio::SerializableObject::
     // TODO: See if there is a media reference that we can attach to the clip.
 
     // TODO: Get real rate
-    int rate = 10;
+    int rate = 24;
 
     auto clip = otio::SerializableObject::Retainer<otio::Clip>(
         new otio::Clip(
