@@ -91,8 +91,6 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
 MStatus OtioTranslator::exportAll(otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
     MGlobal::displayInfo("Exporting everything to a new file.");
 
-    MStatus status;
-
     // Process and loop through all nodes in the dependency graph.
     MItDependencyNodes nodeIter;
     for (; !nodeIter.isDone(); nodeIter.next()) {
@@ -153,20 +151,23 @@ MStatus OtioTranslator::processShotNode(MObject node, otio::SerializableObject::
 
     // TODO: See if there is a media reference that we can attach to the clip.
 
-    // TODO: Get real rate
-    int rate = 24;
-
+    // Run a MEL command to get the time. Once we get the time we tie it to a framerate.
+    // This framerate is need when creating otio clips
+    MString queriedTime;
+    MGlobal::executeCommand("currentUnit -query -time", queriedTime);
+    int frameRate = OtioTranslator::frameRate.at(convertMStringToString(queriedTime));
     auto clip = otio::SerializableObject::Retainer<otio::Clip>(
         new otio::Clip(
             convertMStringToString(shotNode.name()),
             nullptr,
             opentime::TimeRange(
-                opentime::RationalTime(fStartFrame, rate),
-                opentime::RationalTime(fEndFrame - fStartFrame, rate)
+                opentime::RationalTime(fStartFrame, frameRate),
+                opentime::RationalTime(fEndFrame - fStartFrame, frameRate)
             )
         )
     );
 
+    // Add newly created clip to the track.
     track.value->append_child(clip);
 
     return status;

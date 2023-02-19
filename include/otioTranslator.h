@@ -4,6 +4,8 @@
 #include <fstream>
 #include <ios>
 #include <sstream>
+#include <unordered_map>
+#include <string>
 
 #include <maya/MFnClip.h>
 #include <maya/MGlobal.h>
@@ -83,6 +85,16 @@ class OtioTranslator : public MPxFileTranslator {
 
         // This helper method is for processing sequence nodes.
         MStatus processSequenceNode(MObject node, otio::SerializableObject::Retainer<otio::Timeline>& timeline);
+
+        const std::unordered_map<std::string, int> frameRate {
+            {"game", 15},
+            {"film", 24},
+            {"pal", 25},
+            {"ntsc", 30},
+            {"show", 48},
+            {"palf", 50},
+            {"ntscf", 60}
+        };
 };
 
 #endif

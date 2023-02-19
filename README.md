@@ -1,5 +1,6 @@
 # Maya OTIO File Translator
-The Maya OTIO file translator plugin is a Maya command plugin that translates a Maya file into an otio file.
+The Maya OTIO file translator plugin is a Maya file translator plugin that translates a Maya file into an otio file. More information about OpenTimelineIO can be found [here](https://github.com/AcademySoftwareFoundation/OpenTimelineIO).
+In its current state, this plugin only supports imports and export all of files.
 
 ## Getting started
 To get started, use git to clone this repository:
