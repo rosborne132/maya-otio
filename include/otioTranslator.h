@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 
+#include <maya/MDGModifier.h>
 #include <maya/MFnClip.h>
 #include <maya/MGlobal.h>
 #include <maya/MItDependencyNodes.h>
@@ -87,6 +88,45 @@ class OtioTranslator : public MPxFileTranslator {
         MStatus processSequenceNode(MObject node, otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
         const std::unordered_map<std::string, int> frameRate {
+            {"2fps", 2},
+            {"3fps", 3},
+            {"4fps", 4},
+            {"5fps", 5},
+            {"6fps", 6},
+            {"8fps", 8},
+            {"10fps", 10},
+            {"12fps", 12},
+            {"16fps", 16},
+            {"20fps", 20},
+            {"23.976fps", 23.976},
+            {"29.97fps", 29.97},
+            {"29.97df", 29.97},
+            {"40fps", 40},
+            {"47.952fps", 47.952},
+            {"59.94fps", 59.94},
+            {"75fps", 75},
+            {"80fps", 80},
+            {"90fps", 90},
+            {"100fps", 100},
+            {"120fps", 120},
+            {"125fps", 125},
+            {"150fps", 150},
+            {"200fps", 200},
+            {"240fps", 240},
+            {"250fps", 250},
+            {"300fps", 300},
+            {"375fps", 375},
+            {"400fps", 400},
+            {"500fps", 500},
+            {"600fps", 600},
+            {"750fps", 750},
+            {"1200fps", 1200},
+            {"1500fps", 1500},
+            {"2000fps", 2000},
+            {"3000fps", 3000},
+            {"6000fps", 6000},
+            {"44100fps", 44100},
+            {"48000fps", 48000},
             {"game", 15},
             {"film", 24},
             {"pal", 25},

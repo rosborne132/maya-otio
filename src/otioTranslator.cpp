@@ -23,11 +23,6 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
         return MStatus::kFailure;
     }
 
-    // Display information about what was loaded
-    MGlobal::displayInfo(convertStringToMString("Loaded OTIO file: " + filepath));
-    MGlobal::displayInfo(convertStringToMString("Timeline name: " + timeline->name()));
-    MGlobal::displayInfo(convertStringToMString("Timeline duration: " + timeline->duration().to_timecode()));
-
     if (timeline->video_tracks().size() == 0) {
         MGlobal::displayInfo("No video tracks");
     } else {
@@ -36,16 +31,17 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
             MGlobal::displayInfo(convertStringToMString("Kind: " + track->kind()));
             MGlobal::displayInfo(convertStringToMString("Duration: " + track->duration().to_timecode()));
 
-            // TODO: Do something with the track data
+            MDGModifier fDGModifier;
+            MObject modifierNode = fDGModifier.createNode(MFn::kSequencer);
+            MFnDependencyNode depNodeFn(modifierNode);
+
+            for (const auto& clip : track->find_clips()) {
+                MGlobal::displayInfo(convertStringToMString("Clip: " + clip->name()));
+                MGlobal::displayInfo(convertStringToMString("Duration: " + clip->duration().to_timecode()));
+
+                // TODO: Do something with the clip data
+            }
         }
-    }
-
-    MGlobal::displayInfo("All Clips: ");
-    for (const auto& clip : timeline->find_clips()) {
-        MGlobal::displayInfo(convertStringToMString("Clip: " + clip->name()));
-        MGlobal::displayInfo(convertStringToMString("Duration: " + clip->duration().to_timecode()));
-
-        // TODO: Do something with the clip data
     }
 
     return MS::kSuccess;
@@ -155,7 +151,7 @@ MStatus OtioTranslator::processShotNode(MObject node, otio::SerializableObject::
     // This framerate is need when creating otio clips
     MString queriedTime;
     MGlobal::executeCommand("currentUnit -query -time", queriedTime);
-    int frameRate = OtioTranslator::frameRate.at(convertMStringToString(queriedTime));
+    auto frameRate = OtioTranslator::frameRate.at(convertMStringToString(queriedTime));
     auto clip = otio::SerializableObject::Retainer<otio::Clip>(
         new otio::Clip(
             convertMStringToString(shotNode.name()),
