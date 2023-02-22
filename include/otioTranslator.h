@@ -1,5 +1,4 @@
-#ifndef OTIO_TRANSLATOR_H
-#define OTIO_TRANSLATOR_H
+#pragma once
 
 #include <fstream>
 #include <ios>
@@ -136,5 +135,3 @@ class OtioTranslator : public MPxFileTranslator {
             {"ntscf", 60}
         };
 };
-
-#endif

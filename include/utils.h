@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <string>
 #include <maya/MString.h>
@@ -13,5 +12,3 @@ std::string convertMStringToString(MString str) {
     const char* charStr = str.asChar();
     return std::string(charStr);
 }
-
-#endif
