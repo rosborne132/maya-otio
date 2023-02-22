@@ -3,19 +3,19 @@
 
 MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
     const MString filename = file.expandedFullName();
-    auto filepath = convertMStringToString(filename);
+    const auto filepath = convertMStringToString(filename);
 
     MGlobal::displayInfo("Reading file: " + filename);
 
     // Load the timeline into memory
     otio::ErrorStatus errorStatus;
-    auto timeline = dynamic_cast<otio::Timeline*>(
+    const auto timeline = dynamic_cast<otio::Timeline*>(
         otio::Timeline::from_json_file(filepath, &errorStatus)
     );
 
     // Check for errors
     if (!timeline || otio::is_error(errorStatus)) {
-        auto errorMsg = "Error loading: " + filepath + " : "
+        const auto errorMsg = "Error loading: " + filepath + " : "
             + otio::ErrorStatus::outcome_to_string(errorStatus.outcome)
             + ": " + errorStatus.details;
         MGlobal::displayError(convertStringToMString(errorMsg));
@@ -32,14 +32,18 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
             MGlobal::displayInfo(convertStringToMString("Duration: " + track->duration().to_timecode()));
 
             MDGModifier fDGModifier;
-            MObject modifierNode = fDGModifier.createNode(MFn::kSequencer);
-            MFnDependencyNode depNodeFn(modifierNode);
+            const MObject seqModifierNode = fDGModifier.createNode(MFn::kSequencer);
+            MFnDependencyNode seqDepNodeFn(seqModifierNode);
+
+            fDGModifier.renameNode(seqModifierNode, convertStringToMString(track->name()));
 
             for (const auto& clip : track->find_clips()) {
                 MGlobal::displayInfo(convertStringToMString("Clip: " + clip->name()));
                 MGlobal::displayInfo(convertStringToMString("Duration: " + clip->duration().to_timecode()));
 
                 // TODO: Do something with the clip data
+                MObject shotModifierNode = fDGModifier.createNode(MFn::kShot);
+                MFnDependencyNode shotDepNodeFn(shotModifierNode);
             }
         }
     }
@@ -49,20 +53,20 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
 
 MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
     const MString fileName = file.expandedFullName();
-    const std::string filepath = convertMStringToString(fileName);
+    const auto filepath = convertMStringToString(fileName);
 
     otio::ErrorStatus errorStatus;
-    std::string name = convertMStringToString(file.resolvedName());
+    auto name = convertMStringToString(file.resolvedName());
     std::stringstream ss(name);
 
-    int dotIndex = name.find(".");
+    const int dotIndex = name.find(".");
     if (dotIndex != std::string::npos) {
         name = name.substr(0, dotIndex);
     }
 
     // Further documentation on OTIO timeline
     // https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-timeline-structure.html
-    auto timeline = otio::SerializableObject::Retainer<otio::Timeline>(new otio::Timeline(name));
+    const auto timeline = otio::SerializableObject::Retainer<otio::Timeline>(new otio::Timeline(name));
 
     // Check which objects are to be exported. Only 'export all' are allowed.
     if (MPxFileTranslator::kExportAccessMode != mode) return MStatus::kFailure;
@@ -72,8 +76,8 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
 
     // Write timeline to the desired file. Log error if error is occurred while
     // writing the file.
-    if(!timeline.value->to_json_file(filepath, &errorStatus)) {
-        auto errorMsg = "Error writing to " + filepath + " : "
+    if (!timeline.value->to_json_file(filepath, &errorStatus)) {
+        const auto errorMsg = "Error writing to " + filepath + " : "
             + otio::ErrorStatus::outcome_to_string(errorStatus.outcome)
             + ": " + errorStatus.details;
         MGlobal::displayError(convertStringToMString(errorMsg));
@@ -84,7 +88,7 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
     return MS::kSuccess;
 }
 
-MStatus OtioTranslator::exportAll(otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
+MStatus OtioTranslator::exportAll(const otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
     MGlobal::displayInfo("Exporting everything to a new file.");
 
     // Process and loop through all nodes in the dependency graph.
@@ -98,15 +102,15 @@ MStatus OtioTranslator::exportAll(otio::SerializableObject::Retainer<otio::Timel
     return MStatus::kSuccess;
 }
 
-MStatus OtioTranslator::processSequenceNode(MObject node, otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
+MStatus OtioTranslator::processSequenceNode(MObject node, const otio::SerializableObject::Retainer<otio::Timeline>& timeline) {
     MFnDependencyNode nodeFn(node);
     MPlugArray plugs;
     auto plugArray = nodeFn.getConnections(plugs);
 
     // Create stack and track container for processing shot nodes.
-    auto stack = otio::SerializableObject::Retainer<otio::Stack>(new otio::Stack());
+    const auto stack = otio::SerializableObject::Retainer<otio::Stack>(new otio::Stack());
     timeline.value->set_tracks(stack);
-    auto track = otio::SerializableObject::Retainer<otio::Track>(
+    const auto track = otio::SerializableObject::Retainer<otio::Track>(
         new otio::Track(convertMStringToString(nodeFn.name()))
     );
 
@@ -132,7 +136,7 @@ MStatus OtioTranslator::processSequenceNode(MObject node, otio::SerializableObje
     return MStatus::kSuccess;
 }
 
-MStatus OtioTranslator::processShotNode(MObject node, otio::SerializableObject::Retainer<otio::Track>& track) {
+MStatus OtioTranslator::processShotNode(MObject node, const otio::SerializableObject::Retainer<otio::Track>& track) {
     MFnDependencyNode shotNode(node);
     MStatus status;
     MTime startFrame;
@@ -151,8 +155,8 @@ MStatus OtioTranslator::processShotNode(MObject node, otio::SerializableObject::
     // This framerate is need when creating otio clips
     MString queriedTime;
     MGlobal::executeCommand("currentUnit -query -time", queriedTime);
-    auto frameRate = OtioTranslator::frameRate.at(convertMStringToString(queriedTime));
-    auto clip = otio::SerializableObject::Retainer<otio::Clip>(
+    const auto frameRate = OtioTranslator::frameRate.at(convertMStringToString(queriedTime));
+    const auto clip = otio::SerializableObject::Retainer<otio::Clip>(
         new otio::Clip(
             convertMStringToString(shotNode.name()),
             nullptr,
@@ -170,8 +174,8 @@ MStatus OtioTranslator::processShotNode(MObject node, otio::SerializableObject::
 }
 
 MPxFileTranslator::MFileKind OtioTranslator::identifyFile(const MFileObject& fileName, const char* buffer, short size) const {
-    std::string fileNameStr = convertMStringToString(fileName.resolvedName());
-    std::string extention = "." + convertMStringToString(defaultExtension());
+    const auto fileNameStr = convertMStringToString(fileName.resolvedName());
+    const auto extention = "." + convertMStringToString(defaultExtension());
 
     return fileNameStr.find(extention) != std::string::npos
         ? kIsMyFileType

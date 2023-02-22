@@ -79,13 +79,13 @@ class OtioTranslator : public MPxFileTranslator {
 
     private:
         // This helper method exports everything in the scene.
-        MStatus exportAll(otio::SerializableObject::Retainer<otio::Timeline>& timeline);
+        MStatus exportAll(const otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
         // This helper method is for processing shot nodes.
-        MStatus processShotNode(MObject node, otio::SerializableObject::Retainer<otio::Track>& track);
+        MStatus processShotNode(MObject node, const otio::SerializableObject::Retainer<otio::Track>& track);
 
         // This helper method is for processing sequence nodes.
-        MStatus processSequenceNode(MObject node, otio::SerializableObject::Retainer<otio::Timeline>& timeline);
+        MStatus processSequenceNode(MObject node, const otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
         const std::unordered_map<std::string, int> frameRate {
             {"2fps", 2},
