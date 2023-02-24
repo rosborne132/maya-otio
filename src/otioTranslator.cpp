@@ -48,19 +48,20 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
             MFnDependencyNode shotNode(shotObj, &status);
 
             const auto clipName = convertStringToMString(clip->name());
+            const otio::ImageSequenceReference* mediaRef = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference());
             const auto range = clip->source_range();
             const auto rate = range->start_time().rate();
             const auto duration = range->duration().value();
+            const auto seqStartFrame = mediaRef->start_frame() / rate;
             const auto startFrame = range->start_time().value() / rate;
             const auto endFrame = (range->start_time().value() + range->duration().value()) / rate;
             shotNode.setName(clipName);
             shotNode.findPlug("shotName", true, &status).setValue(convertStringToMString(clip->name()));
             shotNode.findPlug("clipDuration", true, &status).setValue(duration);
+            shotNode.findPlug("sequenceStartFrame", true, &status).setValue(seqStartFrame);
             shotNode.findPlug("startFrame", true, &status).setValue(startFrame);
             shotNode.findPlug("endFrame", true, &status).setValue(endFrame);
             shotNode.findPlug("track", true, &status).setValue(trackNo);
-            // TODO: set start frame value for shot.
-            // TODO: get camera and set current camera.
 
             if (status != MS::kSuccess) {
                 MGlobal::displayError("Error when creating shot node: " + status.errorString());
