@@ -43,11 +43,19 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "MissingReference.1",
+                                "OTIO_SCHEMA": "ImageSequenceReference.1",
                                 "metadata": {},
                                 "name": "",
                                 "available_range": null,
-                                "available_image_bounds": null
+                                "available_image_bounds": null,
+                                "target_url_base": "",
+                                "name_prefix": "",
+                                "name_suffix": "",
+                                "start_frame": 0,
+                                "frame_step": 1,
+                                "rate": 1.0,
+                                "frame_zero_padding": 0,
+                                "missing_frame_policy": "error"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -74,11 +82,19 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "MissingReference.1",
+                                "OTIO_SCHEMA": "ImageSequenceReference.1",
                                 "metadata": {},
                                 "name": "",
                                 "available_range": null,
-                                "available_image_bounds": null
+                                "available_image_bounds": null,
+                                "target_url_base": "",
+                                "name_prefix": "",
+                                "name_suffix": "",
+                                "start_frame": 31,
+                                "frame_step": 1,
+                                "rate": 1.0,
+                                "frame_zero_padding": 0,
+                                "missing_frame_policy": "error"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -105,11 +121,19 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "MissingReference.1",
+                                "OTIO_SCHEMA": "ImageSequenceReference.1",
                                 "metadata": {},
                                 "name": "",
                                 "available_range": null,
-                                "available_image_bounds": null
+                                "available_image_bounds": null,
+                                "target_url_base": "",
+                                "name_prefix": "",
+                                "name_suffix": "",
+                                "start_frame": 81,
+                                "frame_step": 1,
+                                "rate": 1.0,
+                                "frame_zero_padding": 0,
+                                "missing_frame_policy": "error"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -136,11 +160,19 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "MissingReference.1",
+                                "OTIO_SCHEMA": "ImageSequenceReference.1",
                                 "metadata": {},
                                 "name": "",
                                 "available_range": null,
-                                "available_image_bounds": null
+                                "available_image_bounds": null,
+                                "target_url_base": "",
+                                "name_prefix": "",
+                                "name_suffix": "",
+                                "start_frame": 109,
+                                "frame_step": 1,
+                                "rate": 1.0,
+                                "frame_zero_padding": 0,
+                                "missing_frame_policy": "error"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -167,11 +199,19 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "MissingReference.1",
+                                "OTIO_SCHEMA": "ImageSequenceReference.1",
                                 "metadata": {},
                                 "name": "",
                                 "available_range": null,
-                                "available_image_bounds": null
+                                "available_image_bounds": null,
+                                "target_url_base": "",
+                                "name_prefix": "",
+                                "name_suffix": "",
+                                "start_frame": 224,
+                                "frame_step": 1,
+                                "rate": 1.0,
+                                "frame_zero_padding": 0,
+                                "missing_frame_policy": "error"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -198,11 +238,19 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "MissingReference.1",
+                                "OTIO_SCHEMA": "ImageSequenceReference.1",
                                 "metadata": {},
                                 "name": "",
                                 "available_range": null,
-                                "available_image_bounds": null
+                                "available_image_bounds": null,
+                                "target_url_base": "",
+                                "name_prefix": "",
+                                "name_suffix": "",
+                                "start_frame": 325,
+                                "frame_step": 1,
+                                "rate": 1.0,
+                                "frame_zero_padding": 0,
+                                "missing_frame_policy": "error"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -229,11 +277,19 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "MissingReference.1",
+                                "OTIO_SCHEMA": "ImageSequenceReference.1",
                                 "metadata": {},
                                 "name": "",
                                 "available_range": null,
-                                "available_image_bounds": null
+                                "available_image_bounds": null,
+                                "target_url_base": "",
+                                "name_prefix": "",
+                                "name_suffix": "",
+                                "start_frame": 486,
+                                "frame_step": 1,
+                                "rate": 1.0,
+                                "frame_zero_padding": 0,
+                                "missing_frame_policy": "error"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -260,11 +316,19 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "MissingReference.1",
+                                "OTIO_SCHEMA": "ImageSequenceReference.1",
                                 "metadata": {},
                                 "name": "",
                                 "available_range": null,
-                                "available_image_bounds": null
+                                "available_image_bounds": null,
+                                "target_url_base": "",
+                                "name_prefix": "",
+                                "name_suffix": "",
+                                "start_frame": 656,
+                                "frame_step": 1,
+                                "rate": 1.0,
+                                "frame_zero_padding": 0,
+                                "missing_frame_policy": "error"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -291,11 +355,19 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "MissingReference.1",
+                                "OTIO_SCHEMA": "ImageSequenceReference.1",
                                 "metadata": {},
                                 "name": "",
                                 "available_range": null,
-                                "available_image_bounds": null
+                                "available_image_bounds": null,
+                                "target_url_base": "",
+                                "name_prefix": "",
+                                "name_suffix": "",
+                                "start_frame": 792,
+                                "frame_step": 1,
+                                "rate": 1.0,
+                                "frame_zero_padding": 0,
+                                "missing_frame_policy": "error"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"

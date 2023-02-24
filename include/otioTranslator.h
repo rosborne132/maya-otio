@@ -12,7 +12,6 @@
 #include <maya/MItDependencyNodes.h>
 #include <maya/MObject.h>
 #include <maya/MPlug.h>
-#include <maya/MPlug.h>
 #include <maya/MPlugArray.h>
 #include <maya/MPxFileTranslator.h>
 #include <maya/MStatus.h>
@@ -21,6 +20,7 @@
 
 #include <opentime/timeRange.h>
 #include <opentimelineio/clip.h>
+#include <opentimelineio/imageSequenceReference.h>
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/track.h>
 
