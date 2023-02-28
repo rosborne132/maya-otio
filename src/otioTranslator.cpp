@@ -36,7 +36,7 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
     for (const auto& track : timeline->video_tracks()) {
         MObject seqObj = fDGModifier.createNode("sequencer", &status);
         MFnDependencyNode seqNode(seqObj, &status);
-        const MString trackName = convertStringToMString(track->name());
+        const auto trackName = convertStringToMString(track->name());
         const auto fileNameWithoutExtention = getFileNameWithoutExtention(file);
         const auto seqName = fileNameWithoutExtention + ":" + convertMStringToString(trackName);
 
@@ -78,7 +78,9 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
             MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr -na " + shotName + ".s " + seqName + ".shts"));
         }
 
-        // Connect sequence to sequenceManager
+        // Connect sequence to sequenceManager. Once connection is made, tracks
+        // and clips will be available in the camera sequencer.
+        // https://help.autodesk.com/view/MAYAUL/2023/ENU/?guid=GUID-FDCA1426-D7FE-41A5-9563-5628C736BCCC
         MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr -na " + seqName + ".nodeState sequenceManager1.seqts"));
     }
 
