@@ -31,13 +31,17 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
     }
 
     MDGModifier fDGModifier;;
-    int trackNo = 1;
+    int trackNo = 0;
 
     for (const auto& track : timeline->video_tracks()) {
         MObject seqObj = fDGModifier.createNode("sequencer", &status);
         MFnDependencyNode seqNode(seqObj, &status);
         const MString trackName = convertStringToMString(track->name());
+        const auto fileNameWithoutExtention = getFileNameWithoutExtention(file);
+        const auto seqName = fileNameWithoutExtention + ":" + convertMStringToString(trackName);
+
         seqNode.setName(trackName);
+        trackNo += 1;
 
         if (status != MS::kSuccess) {
             MGlobal::displayError("Error when creating sequence node: " + status.errorString());
@@ -48,7 +52,7 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
             MFnDependencyNode shotNode(shotObj, &status);
 
             const auto clipName = convertStringToMString(clip->name());
-            const otio::ImageSequenceReference* mediaRef = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference());
+            const auto* mediaRef = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference());
             const auto range = clip->source_range();
             const auto rate = range->start_time().rate();
             const auto duration = range->duration().value();
@@ -66,9 +70,16 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
             if (status != MS::kSuccess) {
                 MGlobal::displayError("Error when creating shot node: " + status.errorString());
             }
+
+            // Create connection between clip and sequence. If the destination
+            // multi-attribute has set the indexMatters, a connection is made to
+            // the next available index.
+            const auto shotName = fileNameWithoutExtention + ":" + convertMStringToString(clipName);
+            MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr -na " + shotName + ".s " + seqName + ".shts"));
         }
 
-        trackNo += 1;
+        // Connect sequence to sequenceManager
+        MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr -na " + seqName + ".nodeState sequenceManager1.seqts"));
     }
 
     // Apply changes to all dependency nodes.
@@ -82,17 +93,11 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
     const auto filepath = convertMStringToString(fileName);
 
     otio::ErrorStatus errorStatus;
-    auto name = convertMStringToString(file.resolvedName());
-    std::stringstream ss(name);
-
-    const int dotIndex = name.find(".");
-    if (dotIndex != std::string::npos) {
-        name = name.substr(0, dotIndex);
-    }
+    const auto fileNameWithoutExtention = getFileNameWithoutExtention(file);
 
     // Further documentation on OTIO timeline
     // https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-timeline-structure.html
-    const auto timeline = otio::SerializableObject::Retainer<otio::Timeline>(new otio::Timeline(name));
+    const auto timeline = otio::SerializableObject::Retainer<otio::Timeline>(new otio::Timeline(fileNameWithoutExtention));
 
     // Check which objects are to be exported. Only 'export all' are allowed.
     if (MPxFileTranslator::kExportAccessMode != mode) return MStatus::kFailure;
@@ -109,8 +114,6 @@ MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, 
         MGlobal::displayError(convertStringToMString(errorMsg));
         return MS::kFailure;
     };
-
-    MGlobal::displayInfo("Export to " + fileName + " was successful!");
 
     return MS::kSuccess;
 }

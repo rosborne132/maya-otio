@@ -1,10 +1,6 @@
 #pragma once
 
-#include <fstream>
-#include <ios>
-#include <sstream>
 #include <unordered_map>
-#include <string>
 
 #include <maya/MDGModifier.h>
 #include <maya/MFnClip.h>
@@ -86,6 +82,7 @@ class OtioTranslator : public MPxFileTranslator {
         // This helper method is for processing sequence nodes.
         MStatus processSequenceNode(MObject node, const otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
+        // Map of all available frame rates within the rate dropdown in Maya.
         const std::unordered_map<std::string, int> frameRate {
             {"2fps", 2},
             {"3fps", 3},
