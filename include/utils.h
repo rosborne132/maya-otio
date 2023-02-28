@@ -26,3 +26,14 @@ std::string getFileNameWithoutExtention(const MFileObject file) {
 
     return name;
 }
+
+std::string cleanupName(std::string name) {
+    std::stringstream ss(name);
+    const int dotIndex = name.find(":");
+
+    if (dotIndex != std::string::npos) {
+        name = name.substr(dotIndex + 1, name.size());
+    }
+
+    return name;
+}

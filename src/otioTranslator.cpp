@@ -143,7 +143,7 @@ MStatus OtioTranslator::processSequenceNode(MObject node, const otio::Serializab
     const auto stack = otio::SerializableObject::Retainer<otio::Stack>(new otio::Stack());
     timeline.value->set_tracks(stack);
     const auto track = otio::SerializableObject::Retainer<otio::Track>(
-        new otio::Track(convertMStringToString(seqNode.name()))
+        new otio::Track(cleanupName(convertMStringToString(seqNode.name())))
     );
 
     // Process each dependency node connected to the sequence node.
@@ -195,7 +195,7 @@ MStatus OtioTranslator::processShotNode(MObject node, const otio::SerializableOb
     );
     const auto clip = otio::SerializableObject::Retainer<otio::Clip>(
         new otio::Clip(
-            convertMStringToString(shotNode.name()),
+            cleanupName(convertMStringToString(shotNode.name())),
             mediaRef,
             opentime::TimeRange(
                 opentime::RationalTime(fStartFrame, frameRate),
