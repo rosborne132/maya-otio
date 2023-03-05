@@ -4,9 +4,6 @@
 MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
     const MString filename = file.expandedFullName();
     const auto filepath = convertMStringToString(filename);
-    MStatus status;
-
-    MGlobal::displayInfo("Reading file: " + filename);
 
     // Load the timeline into memory
     otio::ErrorStatus errorStatus;
@@ -30,64 +27,20 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
         return MS::kSuccess;
     }
 
-    MDGModifier fDGModifier;;
-    int trackNo = 0;
+    int trackNo = 1;
 
     for (const auto& track : timeline->video_tracks()) {
-        MObject seqObj = fDGModifier.createNode("sequencer", &status);
-        MFnDependencyNode seqNode(seqObj, &status);
-        const auto trackName = convertStringToMString(track->name());
         const auto fileNameWithoutExtention = getFileNameWithoutExtention(file);
-        const auto seqName = fileNameWithoutExtention + ":" + convertMStringToString(trackName);
-
-        seqNode.setName(trackName);
-        trackNo += 1;
-
-        if (status != MS::kSuccess) {
-            MGlobal::displayError("Error when creating sequence node: " + status.errorString());
-        }
+        const auto seqName = createSeqNode(track, fileNameWithoutExtention);
 
         for (const auto& clip : track->find_clips()) {
-            MObject shotObj = fDGModifier.createNode("shot", &status);
-            MFnDependencyNode shotNode(shotObj, &status);
-
-            const auto clipName = convertStringToMString(clip->name());
-            const auto* mediaRef = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference());
-            const auto range = clip->source_range();
-            const auto rate = range->start_time().rate();
-            const auto duration = range->duration().value();
-            const auto seqStartFrame = mediaRef->start_frame() / rate;
-            const auto startFrame = range->start_time().value() / rate;
-            const auto endFrame = (range->start_time().value() + range->duration().value()) / rate;
-            shotNode.setName(clipName);
-            shotNode.findPlug("shotName", true, &status).setValue(convertStringToMString(clip->name()));
-            shotNode.findPlug("clipDuration", true, &status).setValue(duration);
-            shotNode.findPlug("sequenceStartFrame", true, &status).setValue(seqStartFrame);
-            shotNode.findPlug("startFrame", true, &status).setValue(startFrame);
-            shotNode.findPlug("endFrame", true, &status).setValue(endFrame);
-            shotNode.findPlug("track", true, &status).setValue(trackNo);
-
-            if (status != MS::kSuccess) {
-                MGlobal::displayError("Error when creating shot node: " + status.errorString());
-            }
-
-            // Create connection between clip and sequence. If the destination
-            // multi-attribute has set the indexMatters, a connection is made to
-            // the next available index.
-            const auto shotName = fileNameWithoutExtention + ":" + convertMStringToString(clipName);
-            MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr -na " + shotName + ".s " + seqName + ".shts"));
+            createShotNode(clip, seqName, trackNo, fileNameWithoutExtention);
         }
 
-        // Connect sequence to sequenceManager. Once connection is made, tracks
-        // and clips will be available in the camera sequencer.
-        // https://help.autodesk.com/view/MAYAUL/2023/ENU/?guid=GUID-FDCA1426-D7FE-41A5-9563-5628C736BCCC
-        MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr -na " + seqName + ".nodeState sequenceManager1.seqts"));
+        trackNo++;
     }
 
-    // Apply changes to all dependency nodes.
-    fDGModifier.doIt();
-
-    return status;
+    return MS::kSuccess;
 }
 
 MStatus OtioTranslator::writer(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
@@ -208,6 +161,69 @@ MStatus OtioTranslator::processShotNode(MObject node, const otio::SerializableOb
     track.value->append_child(clip);
 
     return status;
+}
+
+void OtioTranslator::createShotNode(const otio::SerializableObject::Retainer<otio::Clip>& clip, const std::string seqName, const int trackNo, const std::string fileNameWithoutExtention) {
+    MDGModifier fDGModifier;
+    MStatus status;
+
+    // Create node and assign properties.
+    MObject shotObj = fDGModifier.createNode("shot", &status);
+    MFnDependencyNode shotNode(shotObj, &status);
+    const auto clipName = convertStringToMString(clip->name());
+    const auto* mediaRef = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference());
+    const auto range = clip->source_range();
+    const auto rate = range->start_time().rate();
+    const auto duration = range->duration().value();
+    const auto seqStartFrame = mediaRef->start_frame() / rate;
+    const auto startFrame = range->start_time().value() / rate;
+    const auto endFrame = (range->start_time().value() + range->duration().value()) / rate;
+    shotNode.setName(clipName);
+    shotNode.findPlug("shotName", true, &status).setValue(convertStringToMString(clip->name()));
+    shotNode.findPlug("clipDuration", true, &status).setValue(duration);
+    shotNode.findPlug("sequenceStartFrame", true, &status).setValue(seqStartFrame);
+    shotNode.findPlug("startFrame", true, &status).setValue(startFrame);
+    shotNode.findPlug("endFrame", true, &status).setValue(endFrame);
+    shotNode.findPlug("track", true, &status).setValue(trackNo);
+
+    // Create connection between clip and sequence. If the destination
+    // multi-attribute has set the indexMatters, a connection is made to
+    // the next available index.
+    const auto shotName = fileNameWithoutExtention + ":" + convertMStringToString(clipName);
+    MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr -na " + shotName + ".s " + seqName + ".shts"));
+
+    if (status != MS::kSuccess) {
+        MGlobal::displayError("Error when creating shot node: " + status.errorString());
+    }
+
+    // Apply changes to all dependency nodes.
+    fDGModifier.doIt();
+}
+
+std::string OtioTranslator::createSeqNode(const otio::SerializableObject::Retainer<otio::Track> track, const std::string fileNameWithoutExtention) {
+    MDGModifier fDGModifier;
+    MStatus status;
+
+    // Create sequence node and assign properties.
+    MObject seqObj = fDGModifier.createNode("sequencer", &status);
+    MFnDependencyNode seqNode(seqObj, &status);
+    const auto trackName = convertStringToMString(track->name());
+    const auto seqName = fileNameWithoutExtention + ":" + convertMStringToString(trackName);
+    seqNode.setName(trackName);
+
+    if (status != MS::kSuccess) {
+        MGlobal::displayError("Error when creating sequence node: " + status.errorString());
+    }
+
+    // Connect sequence to sequenceManager. Once connection is made, tracks
+    // and clips will be available in the camera sequencer.
+    // https://help.autodesk.com/view/MAYAUL/2023/ENU/?guid=GUID-FDCA1426-D7FE-41A5-9563-5628C736BCCC
+    MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr -na " + seqName + ".nodeState sequenceManager1.seqts"));
+
+    // Apply changes to all dependency nodes.
+    fDGModifier.doIt();
+
+    return seqName;
 }
 
 MPxFileTranslator::MFileKind OtioTranslator::identifyFile(const MFileObject& fileName, const char* buffer, short size) const {

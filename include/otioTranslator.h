@@ -82,6 +82,12 @@ class OtioTranslator : public MPxFileTranslator {
         // This helper method is for processing sequence nodes.
         MStatus processSequenceNode(MObject node, const otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
+        // This helper method is for creating and adding shot nodes into the Maya scene.
+        void createShotNode(const otio::SerializableObject::Retainer<otio::Clip>& clip, const std::string seqName, const int trackNo, const std::string fileNameWithoutExtention);
+
+        // This helper method is for create and adding sequence nodes into the Maya scene.
+        std::string createSeqNode(const otio::SerializableObject::Retainer<otio::Track> track, const std::string fileNameWithoutExtention);
+
         // Map of all available frame rates within the rate dropdown in Maya.
         const std::unordered_map<std::string, int> frameRate {
             {"2fps", 2},
