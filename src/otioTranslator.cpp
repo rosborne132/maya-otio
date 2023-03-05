@@ -1,6 +1,15 @@
 #include "otioTranslator.h"
 #include "utils.h"
 
+MPxFileTranslator::MFileKind OtioTranslator::identifyFile(const MFileObject& fileName, const char* buffer, short size) const {
+    const auto fileNameStr = convertMStringToString(fileName.resolvedName());
+    const auto extention = "." + convertMStringToString(defaultExtension());
+
+    return fileNameStr.find(extention) != std::string::npos
+        ? kIsMyFileType
+        : kNotMyFileType;
+}
+
 MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
     const MString filename = file.expandedFullName();
     const auto filepath = convertMStringToString(filename);
@@ -224,13 +233,4 @@ std::string OtioTranslator::createSeqNode(const otio::SerializableObject::Retain
     fDGModifier.doIt();
 
     return seqName;
-}
-
-MPxFileTranslator::MFileKind OtioTranslator::identifyFile(const MFileObject& fileName, const char* buffer, short size) const {
-    const auto fileNameStr = convertMStringToString(fileName.resolvedName());
-    const auto extention = "." + convertMStringToString(defaultExtension());
-
-    return fileNameStr.find(extention) != std::string::npos
-        ? kIsMyFileType
-        : kNotMyFileType;
 }
