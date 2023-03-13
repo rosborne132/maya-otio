@@ -43,7 +43,10 @@ MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, 
 
     int trackNo = 1;
 
+    // Loop through all tracks and only process the video tracks
     for (const auto& track : timeline->video_tracks()) {
+        if (track->kind() != otio::Track::Kind::video) continue;
+
         const auto fileNameWithoutExtention = getFileNameWithoutExtention(file);
         const auto seqName = createSeqNode(track, fileNameWithoutExtention);
 
