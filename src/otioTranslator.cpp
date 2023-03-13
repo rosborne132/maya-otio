@@ -4,14 +4,19 @@
 MPxFileTranslator::MFileKind OtioTranslator::identifyFile(const MFileObject& fileName, const char* buffer, short size) const {
     const auto fileNameStr = convertMStringToString(fileName.resolvedName());
     const auto extention = "." + convertMStringToString(defaultExtension());
+    std::string fileNameLowerStr;
 
-    return fileNameStr.find(extention) != std::string::npos
+    for (char c : fileNameStr) {
+        fileNameLowerStr += std::tolower(c);
+    }
+
+    return fileNameLowerStr.find(extention) != std::string::npos
         ? kIsMyFileType
         : kNotMyFileType;
 }
 
 MStatus OtioTranslator::reader(const MFileObject& file, const MString& options, MPxFileTranslator::FileAccessMode mode) {
-    const MString filename = file.expandedFullName();
+    const auto filename = file.expandedFullName();
     const auto filepath = convertMStringToString(filename);
 
     // Load the timeline into memory
