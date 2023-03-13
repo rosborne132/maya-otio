@@ -16,7 +16,7 @@
 
 #include <opentime/timeRange.h>
 #include <opentimelineio/clip.h>
-#include <opentimelineio/imageSequenceReference.h>
+#include <opentimelineio/externalReference.h>
 #include <opentimelineio/timeline.h>
 #include <opentimelineio/track.h>
 
@@ -87,6 +87,9 @@ class OtioTranslator : public MPxFileTranslator {
 
         // This helper method is for create and adding sequence nodes into the Maya scene.
         std::string createSeqNode(const otio::SerializableObject::Retainer<otio::Track> track, const std::string fileNameWithoutExtention);
+
+        // This helper method is for get
+        std::string getVideoUrlForShot(MString shotName);
 
         // Map of all available frame rates within the rate dropdown in Maya.
         const std::unordered_map<std::string, int> frameRate {

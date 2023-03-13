@@ -136,24 +136,28 @@ MStatus OtioTranslator::processShotNode(MObject node, const otio::SerializableOb
     MTime startFrame;
     MTime endFrame;
     MTime seqStartFrame;
+    MTime seqEndFrame;
 
     shotNode.findPlug("sequenceStartFrame", true, &status).getValue(seqStartFrame);
+    shotNode.findPlug("sequenceEndFrame", true, &status).getValue(seqEndFrame);
     shotNode.findPlug("startFrame", true, &status).getValue(startFrame);
     shotNode.findPlug("endFrame", true, &status).getValue(endFrame);
     int fStartFrame = (int) startFrame.as(MTime::uiUnit());
     int fEndFrame = (int) endFrame.as(MTime::uiUnit());
     int fSeqStartFrame = (int) seqStartFrame.as(MTime::uiUnit());
+    int fSeqEndFrame = (int) seqEndFrame.as(MTime::uiUnit());
 
     // Run a MEL command to get the time. Once we get the time we tie it to a framerate.
     // This framerate is need when creating otio clips
     MString queriedTime;
     MGlobal::executeCommand("currentUnit -query -time", queriedTime);
     const auto frameRate = OtioTranslator::frameRate.at(convertMStringToString(queriedTime));
-    const auto mediaRef = new otio::ImageSequenceReference(
-        "",
-        "",
-        "",
-        fSeqStartFrame
+    const auto mediaRef = new otio::ExternalReference(
+        getVideoUrlForShot(shotNode.name()),
+        opentime::TimeRange(
+            opentime::RationalTime(fSeqStartFrame, frameRate),
+            opentime::RationalTime(fSeqEndFrame - fSeqStartFrame, frameRate)
+        )
     );
     const auto clip = otio::SerializableObject::Retainer<otio::Clip>(
         new otio::Clip(
@@ -180,17 +184,19 @@ void OtioTranslator::createShotNode(const otio::SerializableObject::Retainer<oti
     MObject shotObj = fDGModifier.createNode("shot", &status);
     MFnDependencyNode shotNode(shotObj, &status);
     const auto clipName = convertStringToMString(clip->name());
-    const auto* mediaRef = dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference());
+    const auto* mediaRef = dynamic_cast<otio::ExternalReference*>(clip->media_reference());
     const auto range = clip->source_range();
     const auto rate = range->start_time().rate();
     const auto duration = range->duration().value();
-    const auto seqStartFrame = mediaRef->start_frame() / rate;
+    const auto seqStartFrame = mediaRef->available_range()->start_time().value() / rate;
+    const auto seqEndFrame = (mediaRef->available_range()->start_time().value() + mediaRef->available_range()->duration().value()) / rate;
     const auto startFrame = range->start_time().value() / rate;
     const auto endFrame = (range->start_time().value() + range->duration().value()) / rate;
     shotNode.setName(clipName);
     shotNode.findPlug("shotName", true, &status).setValue(convertStringToMString(clip->name()));
     shotNode.findPlug("clipDuration", true, &status).setValue(duration);
     shotNode.findPlug("sequenceStartFrame", true, &status).setValue(seqStartFrame);
+    shotNode.findPlug("sequenceEndFrame", true, &status).setValue(seqEndFrame);
     shotNode.findPlug("startFrame", true, &status).setValue(startFrame);
     shotNode.findPlug("endFrame", true, &status).setValue(endFrame);
     shotNode.findPlug("track", true, &status).setValue(trackNo);
@@ -233,4 +239,11 @@ std::string OtioTranslator::createSeqNode(const otio::SerializableObject::Retain
     fDGModifier.doIt();
 
     return seqName;
+}
+
+std::string OtioTranslator::getVideoUrlForShot(MString shotName) {
+    MString fileName;
+    MGlobal::executeCommand("playblast -filename " + shotName, fileName);
+
+    return convertMStringToString(fileName);
 }

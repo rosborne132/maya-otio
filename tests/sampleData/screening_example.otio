@@ -43,19 +43,24 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "ImageSequenceReference.1",
+                                "OTIO_SCHEMA": "ExternalReference.1",
                                 "metadata": {},
                                 "name": "",
-                                "available_range": null,
+                                "available_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 30.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 0.0
+                                    }
+                                },
                                 "available_image_bounds": null,
-                                "target_url_base": "",
-                                "name_prefix": "",
-                                "name_suffix": "",
-                                "start_frame": 0,
-                                "frame_step": 1,
-                                "rate": 1.0,
-                                "frame_zero_padding": 0,
-                                "missing_frame_policy": "error"
+                                "target_url": "/Documents/maya/projects/default/ZZ100_501__LAY3_.mov"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -82,19 +87,24 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "ImageSequenceReference.1",
+                                "OTIO_SCHEMA": "ExternalReference.1",
                                 "metadata": {},
                                 "name": "",
-                                "available_range": null,
+                                "available_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 49.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 31.0
+                                    }
+                                },
                                 "available_image_bounds": null,
-                                "target_url_base": "",
-                                "name_prefix": "",
-                                "name_suffix": "",
-                                "start_frame": 31,
-                                "frame_step": 1,
-                                "rate": 1.0,
-                                "frame_zero_padding": 0,
-                                "missing_frame_policy": "error"
+                                "target_url": "Documents/maya/projects/default/ZZ100_502A__LAY3_.mov"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -121,19 +131,24 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "ImageSequenceReference.1",
+                                "OTIO_SCHEMA": "ExternalReference.1",
                                 "metadata": {},
                                 "name": "",
-                                "available_range": null,
+                                "available_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 27.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 81.0
+                                    }
+                                },
                                 "available_image_bounds": null,
-                                "target_url_base": "",
-                                "name_prefix": "",
-                                "name_suffix": "",
-                                "start_frame": 81,
-                                "frame_step": 1,
-                                "rate": 1.0,
-                                "frame_zero_padding": 0,
-                                "missing_frame_policy": "error"
+                                "target_url": "Documents/maya/projects/default/ZZ100_503A__LAY1_.mov"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -160,19 +175,24 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "ImageSequenceReference.1",
+                                "OTIO_SCHEMA": "ExternalReference.1",
                                 "metadata": {},
                                 "name": "",
-                                "available_range": null,
+                                "available_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 114.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 109.0
+                                    }
+                                },
                                 "available_image_bounds": null,
-                                "target_url_base": "",
-                                "name_prefix": "",
-                                "name_suffix": "",
-                                "start_frame": 109,
-                                "frame_step": 1,
-                                "rate": 1.0,
-                                "frame_zero_padding": 0,
-                                "missing_frame_policy": "error"
+                                "target_url": "Documents/maya/projects/default/ZZ100_504C__LAY1_.mov"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -199,19 +219,24 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "ImageSequenceReference.1",
+                                "OTIO_SCHEMA": "ExternalReference.1",
                                 "metadata": {},
                                 "name": "",
-                                "available_range": null,
+                                "available_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 100.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 224.0
+                                    }
+                                },
                                 "available_image_bounds": null,
-                                "target_url_base": "",
-                                "name_prefix": "",
-                                "name_suffix": "",
-                                "start_frame": 224,
-                                "frame_step": 1,
-                                "rate": 1.0,
-                                "frame_zero_padding": 0,
-                                "missing_frame_policy": "error"
+                                "target_url": "Documents/maya/projects/default/ZZ100_504B__LAY1_.mov"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -238,19 +263,24 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "ImageSequenceReference.1",
+                                "OTIO_SCHEMA": "ExternalReference.1",
                                 "metadata": {},
                                 "name": "",
-                                "available_range": null,
+                                "available_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 160.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 325.0
+                                    }
+                                },
                                 "available_image_bounds": null,
-                                "target_url_base": "",
-                                "name_prefix": "",
-                                "name_suffix": "",
-                                "start_frame": 325,
-                                "frame_step": 1,
-                                "rate": 1.0,
-                                "frame_zero_padding": 0,
-                                "missing_frame_policy": "error"
+                                "target_url": "Documents/maya/projects/default/ZZ100_507C__LAY2_.mov"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -277,19 +307,24 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "ImageSequenceReference.1",
+                                "OTIO_SCHEMA": "ExternalReference.1",
                                 "metadata": {},
                                 "name": "",
-                                "available_range": null,
+                                "available_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 169.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 486.0
+                                    }
+                                },
                                 "available_image_bounds": null,
-                                "target_url_base": "",
-                                "name_prefix": "",
-                                "name_suffix": "",
-                                "start_frame": 486,
-                                "frame_step": 1,
-                                "rate": 1.0,
-                                "frame_zero_padding": 0,
-                                "missing_frame_policy": "error"
+                                "target_url": "/Documents/maya/projects/default/ZZ100_508__LAY2_.mov"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -316,19 +351,24 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "ImageSequenceReference.1",
+                                "OTIO_SCHEMA": "ExternalReference.1",
                                 "metadata": {},
                                 "name": "",
-                                "available_range": null,
+                                "available_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 135.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 656.0
+                                    }
+                                },
                                 "available_image_bounds": null,
-                                "target_url_base": "",
-                                "name_prefix": "",
-                                "name_suffix": "",
-                                "start_frame": 656,
-                                "frame_step": 1,
-                                "rate": 1.0,
-                                "frame_zero_padding": 0,
-                                "missing_frame_policy": "error"
+                                "target_url": "/Documents/maya/projects/default/ZZ100_510__LAY1_.mov"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
@@ -355,19 +395,24 @@
                         "enabled": true,
                         "media_references": {
                             "DEFAULT_MEDIA": {
-                                "OTIO_SCHEMA": "ImageSequenceReference.1",
+                                "OTIO_SCHEMA": "ExternalReference.1",
                                 "metadata": {},
                                 "name": "",
-                                "available_range": null,
+                                "available_range": {
+                                    "OTIO_SCHEMA": "TimeRange.1",
+                                    "duration": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 256.0
+                                    },
+                                    "start_time": {
+                                        "OTIO_SCHEMA": "RationalTime.1",
+                                        "rate": 24.0,
+                                        "value": 792.0
+                                    }
+                                },
                                 "available_image_bounds": null,
-                                "target_url_base": "",
-                                "name_prefix": "",
-                                "name_suffix": "",
-                                "start_frame": 792,
-                                "frame_step": 1,
-                                "rate": 1.0,
-                                "frame_zero_padding": 0,
-                                "missing_frame_policy": "error"
+                                "target_url": "Documents/maya/projects/default/ZZ100_510B__LAY1_.mov"
                             }
                         },
                         "active_media_reference_key": "DEFAULT_MEDIA"
