@@ -210,18 +210,16 @@ void OtioTranslator::createShotNode(const otio::SerializableObject::Retainer<oti
     shotNode.findPlug("track", true, &status).setValue(trackNo);
 
     // TODO: check for existing shot before creating a new camera
-    // TODO: check that shot has "Shot Camera" attr
-
-    MString newCam;
     const auto camName = clip->name() + "_cam";
-    MGlobal::executeCommand(convertStringToMString(("camera -name " + camName)), newCam);
-    shotNode.findPlug("currentCamera", true, &status).setValue(convertStringToMString(camName + "1"));
+    MGlobal::executeCommand(convertStringToMString(("camera -name " + camName)));
 
     // Create connection between clip and sequence. If the destination
     // multi-attribute has set the indexMatters, a connection is made to
     // the next available index.
     const auto shotName = fileNameWithoutExtention + ":" + convertMStringToString(clipName);
+    const auto newCamName = fileNameWithoutExtention + ":" + clip->name() + "_camShape1";
     MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr -na " + shotName + ".s " + seqName + ".shts"));
+    MGlobal::executeCommandOnIdle(convertStringToMString("connectAttr " + newCamName + ".message " + shotName + ".currentCamera "));
 
     if (status != MS::kSuccess) {
         MGlobal::displayError("Error when creating shot node: " + status.errorString());
