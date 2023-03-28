@@ -77,19 +77,22 @@ class OtioTranslator : public MPxFileTranslator {
         MStatus exportAll(const otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
         // This helper method is for processing shot nodes.
-        MStatus processShotNode(MObject node, const otio::SerializableObject::Retainer<otio::Track>& track);
+        MStatus processShotNode(const MObject& node, const otio::SerializableObject::Retainer<otio::Track>& track);
 
         // This helper method is for processing sequence nodes.
-        MStatus processSequenceNode(MObject node, const otio::SerializableObject::Retainer<otio::Timeline>& timeline);
+        MStatus processSequenceNode(const MObject& node, const otio::SerializableObject::Retainer<otio::Timeline>& timeline);
 
         // This helper method is for creating and adding shot nodes into the Maya scene.
-        void createShotNode(const otio::SerializableObject::Retainer<otio::Clip>& clip, const std::string seqName, const int trackNo, const std::string fileNameWithoutExtention);
+        void createShotNode(const otio::SerializableObject::Retainer<otio::Clip>& clip, const std::string& seqName, const int& trackNo, const std::string& fileNameWithoutExtention);
 
         // This helper method is for create and adding sequence nodes into the Maya scene.
-        std::string createSeqNode(const otio::SerializableObject::Retainer<otio::Track> track, const std::string fileNameWithoutExtention);
+        std::string createSeqNode(const otio::SerializableObject::Retainer<otio::Track>& track, const std::string& fileNameWithoutExtention);
 
-        // This helper method is for get
-        std::string getVideoUrlForShot(MString shotName);
+        // This helper method is for get url strings from shots
+        std::string getVideoUrlForShot(const MString& shotName);
+
+        // This helper method is for get plug valus from nodes
+        MTime getPlugValue(const MFnDependencyNode& node, const char* attributeName, MStatus& status);
 
         // Map of all available frame rates within the rate dropdown in Maya.
         const std::unordered_map<std::string, int> frameRate {
